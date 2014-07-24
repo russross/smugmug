@@ -115,11 +115,11 @@ type Album struct {
 
 // Albums returns the albums for the user identified by the nick name.
 // Use c.NickName for the logged-in user.
-func (c *Conn) Albums(nick string) ([]*Album, error) {
+func (c *Conn) Albums(nick string) ([]*AlbumInfo, error) {
 	var out struct {
-		Albums []*Album
+		Albums []*AlbumInfo
 	}
-	if err := c.do("smugmug.albums.get", &out, "NickName", nick); err != nil {
+	if err := c.do("smugmug.albums.get", &out, "NickName", nick, "Heavy", "1"); err != nil {
 		return nil, err
 	}
 	return out.Albums, nil
@@ -163,7 +163,7 @@ func (c *Conn) AlbumInfo(album *Album) (*AlbumInfo, error) {
 	return out.Album, nil
 }
 
-// An AlbumInfo lists the metadata for an album.	
+// An AlbumInfo lists the metadata for an album.
 type AlbumInfo struct {
 	ID    int `json:"id"`
 	Key   string
@@ -270,10 +270,10 @@ type Image struct {
 }
 
 // Images returns a list of images for an album.
-func (c *Conn) Images(album *Album) ([]*Image, error) {
+func (c *Conn) Images(album *AlbumInfo) ([]*ImageInfo, error) {
 	var out struct {
 		Album struct {
-			Images []*Image
+			Images []*ImageInfo
 		}
 	}
 
@@ -297,7 +297,7 @@ type ImageInfo struct {
 	Caption      string
 	Date         string
 	FileName     string
-	Duration     int
+	Duration     float64
 	Format       string
 	Height       int
 	Hidden       bool
