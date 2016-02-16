@@ -33,7 +33,7 @@ type Conn struct {
 
 // A Category represents a single album category.
 type Category struct {
-	ID   int `json:"id"`
+	ID   int64 `json:"id"`
 	Name string
 }
 
@@ -48,11 +48,15 @@ type loginResult struct {
 			ID string `json:"id"`
 		}
 		User struct {
-			ID          int `json:"id"`
+			ID          int64 `json:"id"`
 			NickName    string
 			DisplayName string
 		}
 	}
+}
+
+func itoa(i int64) string {
+	return strconv.FormatInt(i, 10)
 }
 
 // Login logs into the SmugMug server with the given email address and password.
@@ -102,12 +106,12 @@ func (c *Conn) CreateCategory(name string) (*Category, error) {
 
 // DeleteCategory deletes the category.
 func (c *Conn) DeleteCategory(cat *Category) error {
-	return c.do("smugmug.categories.delete", nil, "CategoryID", strconv.Itoa(cat.ID))
+	return c.do("smugmug.categories.delete", nil, "CategoryID", itoa(cat.ID))
 }
 
 // An Album represents a single photo album.
 type Album struct {
-	ID    int `json:"id"`
+	ID    int64 `json:"id"`
 	Key   string
 	Title string
 	URL   string
@@ -151,7 +155,7 @@ func (c *Conn) AlbumInfo(album *Album) (*AlbumInfo, error) {
 		Album *AlbumInfo
 	}
 	if err := c.do("smugmug.albums.getInfo", &out,
-		"AlbumID", strconv.Itoa(album.ID),
+		"AlbumID", itoa(album.ID),
 		"AlbumKey", album.Key,
 	); err != nil {
 		return nil, err
@@ -165,7 +169,7 @@ func (c *Conn) AlbumInfo(album *Album) (*AlbumInfo, error) {
 
 // An AlbumInfo lists the metadata for an album.
 type AlbumInfo struct {
-	ID    int `json:"id"`
+	ID    int64 `json:"id"`
 	Key   string
 	Title string
 
@@ -177,7 +181,7 @@ type AlbumInfo struct {
 	ColorCorrection   int
 	Comments          bool
 	Community         struct {
-		ID   int `json:"id"`
+		ID   int64 `json:"id"`
 		Name string
 	}
 	Description string
@@ -190,7 +194,7 @@ type AlbumInfo struct {
 	Header      bool
 	HideOwner   bool
 	Highlight   struct {
-		ID   int `json:"id"`
+		ID   int64 `json:"id"`
 		Key  string
 		Type string
 	}
@@ -208,7 +212,7 @@ type AlbumInfo struct {
 	Position          int
 	Printable         bool
 	Printmark         struct {
-		ID   int `json:"id"`
+		ID   int64 `json:"id"`
 		Name string
 	}
 	ProofDays      int
@@ -221,10 +225,10 @@ type AlbumInfo struct {
 	SquareThumbs   bool
 	SubCategory    *Category
 	Template       struct {
-		ID int `json:"id"`
+		ID int64 `json:"id"`
 	}
 	Theme struct {
-		ID   int `json:"id"`
+		ID   int64 `json:"id"`
 		Key  string
 		Type string
 	}
@@ -233,7 +237,7 @@ type AlbumInfo struct {
 	UnsharpRadius float64
 	UnsharpSigma  float64
 	Watermark     struct {
-		ID   int `json:"id"`
+		ID   int64 `json:"id"`
 		Name string
 	}
 	Watermarking    bool
@@ -253,18 +257,18 @@ type AlbumInfo struct {
 //	c.ChangeAlbum(a, "Larges", "1", "Title", "My Album")
 //
 func (c *Conn) ChangeAlbum(album *Album, args ...string) error {
-	callArgs := append([]string{"AlbumID", strconv.Itoa(album.ID)}, args...)
+	callArgs := append([]string{"AlbumID", itoa(album.ID)}, args...)
 	return c.do("smugmug.albums.changeSettings", nil, callArgs...)
 }
 
 // DeleteAlbum deletes an album.
 func (c *Conn) DeleteAlbum(album *Album) error {
-	return c.do("smugmug.albums.delete", nil, "AlbumID", strconv.Itoa(album.ID))
+	return c.do("smugmug.albums.delete", nil, "AlbumID", itoa(album.ID))
 }
 
 // An Image represents a single SmugMug image.
 type Image struct {
-	ID  int `json:"id"`
+	ID  int64 `json:"id"`
 	Key string
 	URL string
 }
@@ -278,7 +282,7 @@ func (c *Conn) Images(album *AlbumInfo) ([]*ImageInfo, error) {
 	}
 
 	if err := c.do("smugmug.images.get", &out,
-		"AlbumID", strconv.Itoa(album.ID),
+		"AlbumID", itoa(album.ID),
 		"AlbumKey", album.Key,
 		"Heavy", "1",
 	); err != nil {
@@ -290,7 +294,7 @@ func (c *Conn) Images(album *AlbumInfo) ([]*ImageInfo, error) {
 
 // An ImageInfo lists the metadata for an image.
 type ImageInfo struct {
-	ID           int `json:"id"`
+	ID           int64 `json:"id"`
 	Key          string
 	Album        *Album
 	Altitude     int
@@ -333,7 +337,7 @@ func (c *Conn) ImageInfo(image *Image) (*ImageInfo, error) {
 		Image *ImageInfo
 	}
 	if err := c.do("smugmug.images.getInfo", &out,
-		"ImageID", strconv.Itoa(image.ID),
+		"ImageID", itoa(image.ID),
 		"ImageKey", image.Key,
 	); err != nil {
 		return nil, err
@@ -355,13 +359,13 @@ func (c *Conn) ImageInfo(image *Image) (*ImageInfo, error) {
 //	c.ChangeImage(a, "Caption", "me!", "Hidden", "0")
 //
 func (c *Conn) ChangeImage(image *Image, args ...string) error {
-	callArgs := append([]string{"ImageID", strconv.Itoa(image.ID)}, args...)
+	callArgs := append([]string{"ImageID", itoa(image.ID)}, args...)
 	return c.do("smugmug.images.changeSettings", nil, callArgs...)
 }
 
 // An ImageEXIF lists the EXIF data associated with an image.
 type ImageEXIF struct {
-	ID                     int `json:"id"`
+	ID                     int64 `json:"id"`
 	Key                    string
 	Aperture               string
 	Brightness             string
@@ -399,7 +403,7 @@ func (c *Conn) ImageEXIF(image *Image) (*ImageEXIF, error) {
 		Image *ImageEXIF
 	}
 	if err := c.do("smugmug.images.getEXIF", &out,
-		"ImageID", strconv.Itoa(image.ID),
+		"ImageID", itoa(image.ID),
 		"ImageKey", image.Key,
 	); err != nil {
 		return nil, err
@@ -413,7 +417,7 @@ func (c *Conn) ImageEXIF(image *Image) (*ImageEXIF, error) {
 
 // DeleteImage deletes an image.
 func (c *Conn) DeleteImage(image *Image) error {
-	return c.do("smugmug.images.delete", nil, "ImageID", strconv.Itoa(image.ID))
+	return c.do("smugmug.images.delete", nil, "ImageID", itoa(image.ID))
 }
 
 // AddImage uploads a new image to an album.
@@ -430,7 +434,7 @@ func (c *Conn) ReplaceImage(name string, data []byte, image *Image) (*Image, err
 	return c.upload(name, data, "ImageID", image.ID)
 }
 
-func (c *Conn) upload(name string, data []byte, idkind string, id int) (*Image, error) {
+func (c *Conn) upload(name string, data []byte, idkind string, id int64) (*Image, error) {
 	h := md5.New()
 	h.Write(data)
 	digest := fmt.Sprintf("%x", h.Sum(nil))
@@ -448,7 +452,7 @@ func (c *Conn) upload(name string, data []byte, idkind string, id int) (*Image, 
 			"X-Smug-SessionID":    {c.sessid},
 			"X-Smug-Version":      {smugAPI},
 			"X-Smug-ResponseType": {"JSON"},
-			"X-Smug-" + idkind:    {strconv.Itoa(id)},
+			"X-Smug-" + idkind:    {itoa(id)},
 			"X-Smug-FileName":     {name},
 		},
 		Body: ioutil.NopCloser(bytes.NewBuffer(data)),
